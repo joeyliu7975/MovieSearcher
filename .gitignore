@@ -60,3 +60,8 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+# API Keys - Do not commit sensitive information
+# Note: Info.plist.example is committed as a template
+# Copy it to Info.plist and add your API keys
+MovieSearcher/MovieSearcher/Info.plist
