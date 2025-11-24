@@ -16,7 +16,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         window = UIWindow(windowScene: windowScene)
-        let searchViewController = SearchViewController()
+        
+        let repository = MovieRepository()
+        let viewModel = SearchViewModel(repository: repository)
+        
+        let searchViewController = SearchViewController(viewModel: viewModel)
         let navigationController = UINavigationController(rootViewController: searchViewController)
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()

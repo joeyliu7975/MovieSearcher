@@ -6,16 +6,24 @@
 //
 
 import UIKit
+import Combine
 
 class SearchViewController: UIViewController {
     
     // MARK: - Properties
-    private let repository = MovieRepository()
-    private var movies: [Movie] = []
-    private var currentPage = 1
-    private var totalPages = 0
-    private var isLoading = false
-    private var searchTask: Task<Void, Never>?
+    private let viewModel: any SearchViewModelProtocol
+    private var cancellables = Set<AnyCancellable>()
+    
+    // MARK: - Initialization
+    
+    init(viewModel: any SearchViewModelProtocol) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - UI Components
     private lazy var searchBar: UISearchBar = {
@@ -60,6 +68,7 @@ class SearchViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        bindViewModel()
     }
     
     // MARK: - Setup
@@ -97,82 +106,48 @@ class SearchViewController: UIViewController {
         ])
     }
     
-    // MARK: - Search
+    // MARK: - ViewModel Binding
     
-    private func searchMovies(query: String, page: Int = 1) {
-        // Cancel previous search
-        searchTask?.cancel()
+    private func bindViewModel() {
+        viewModel.moviesPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.tableView.reloadData()
+            }
+            .store(in: &cancellables)
         
-        guard !query.isEmpty else {
-            movies = []
-            currentPage = 1
-            totalPages = 0
-            updateUI()
-            return
-        }
-        
-        isLoading = true
-        updateUI()
-        
-        searchTask = Task {
-            do {
-                let searchResult = try await repository.searchMovies(
-                    query: query,
-                    includeAdult: false,
-                    language: "en-US",
-                    page: page
-                )
-                
-                // Check if task was cancelled
-                guard !Task.isCancelled else { return }
-                
-                if page == 1 {
-                    movies = searchResult.movies
+        viewModel.isLoadingPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isLoading in
+                if isLoading {
+                    self?.loadingIndicator.startAnimating()
+                    self?.emptyStateLabel.isHidden = true
                 } else {
-                    movies.append(contentsOf: searchResult.movies)
-                }
-                
-                currentPage = searchResult.currentPage
-                totalPages = searchResult.totalPages
-                isLoading = false
-                
-                await MainActor.run {
-                    updateUI()
-                }
-            } catch {
-                guard !Task.isCancelled else { return }
-                
-                isLoading = false
-                await MainActor.run {
-                    updateUI()
-                    showError(error)
+                    self?.loadingIndicator.stopAnimating()
                 }
             }
-        }
+            .store(in: &cancellables)
+        
+        viewModel.isEmptyPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isEmpty in
+                self?.emptyStateLabel.isHidden = !isEmpty
+            }
+            .store(in: &cancellables)
+        
+        viewModel.errorMessagePublisher
+            .compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] errorMessage in
+                self?.showError(message: errorMessage)
+                self?.viewModel.clearError()
+            }
+            .store(in: &cancellables)
     }
     
     // MARK: - UI Updates
     
-    private func updateUI() {
-        if isLoading {
-            loadingIndicator.startAnimating()
-            emptyStateLabel.isHidden = true
-        } else {
-            loadingIndicator.stopAnimating()
-            emptyStateLabel.isHidden = !movies.isEmpty
-        }
-        
-        tableView.reloadData()
-    }
-    
-    private func showError(_ error: Error) {
-        let message: String
-        if let apiError = error as? APIError {
-            message = apiError.errorDescription ?? "An error occurred"
-        } else {
-            message = error.localizedDescription
-        }
-        
+    private func showError(message: String) {
         let alert = UIAlertController(
             title: "Error",
             message: message,
@@ -189,7 +164,7 @@ extension SearchViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
         guard let query = searchBar.text else { return }
-        searchMovies(query: query, page: 1)
+        viewModel.searchMovies(query: query, page: 1)
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
@@ -202,12 +177,12 @@ extension SearchViewController: UISearchBarDelegate {
 
 extension SearchViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return movies.count
+        return viewModel.movies.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: MovieTableViewCell.identifier, for: indexPath) as! MovieTableViewCell
-        let movie = movies[indexPath.row]
+        let movie = viewModel.movies[indexPath.row]
         cell.configure(with: movie)
         return cell
     }
@@ -223,11 +198,8 @@ extension SearchViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         // Load more when scrolling near the end
-        if indexPath.row == movies.count - 1 && !isLoading && currentPage < totalPages {
-            let nextPage = currentPage + 1
-            if let query = searchBar.text, !query.isEmpty {
-                searchMovies(query: query, page: nextPage)
-            }
+        if indexPath.row == viewModel.movies.count - 1 {
+            viewModel.loadNextPage()
         }
     }
 }
