@@ -12,18 +12,15 @@ class SearchViewController: UIViewController {
     
     // MARK: - Properties
     private let viewModel: any SearchViewModelProtocol
-    private let repository: MovieSearchRepositoryProtocol
     private var cancellables = Set<AnyCancellable>()
     private let searchTextSubject = PassthroughSubject<String, Never>()
     
     // MARK: - Initialization
     
     init(
-        viewModel: any SearchViewModelProtocol,
-        repository: MovieSearchRepositoryProtocol = MovieRepository()
+        viewModel: any SearchViewModelProtocol
     ) {
         self.viewModel = viewModel
-        self.repository = repository
         super.init(nibName: nil, bundle: nil)
     }
     

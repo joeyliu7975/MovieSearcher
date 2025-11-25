@@ -20,7 +20,7 @@ class SearchViewModel: SearchViewModelProtocol {
     
     // MARK: - Private Properties
     
-    private let repository: MovieRepositoryProtocol
+    private let repository: MovieSearchRepositoryProtocol
     private var currentPage = 1
     private var totalPages = 0
     private var currentQuery: String = ""
@@ -41,7 +41,7 @@ class SearchViewModel: SearchViewModelProtocol {
     
     // MARK: - Initialization
     
-    init(repository: MovieRepositoryProtocol = MovieRepository()) {
+    init(repository: MovieSearchRepositoryProtocol = MovieRepository()) {
         self.repository = repository
     }
     
