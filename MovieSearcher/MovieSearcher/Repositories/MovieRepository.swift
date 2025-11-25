@@ -17,10 +17,10 @@ protocol MovieRepositoryProtocol {
 }
 
 class MovieRepository: MovieRepositoryProtocol {
-    private let apiService: MovieAPIServiceProtocol
+    private let dataLoader: MovieDataLoader
     
-    init(apiService: MovieAPIServiceProtocol = MovieAPIService()) {
-        self.apiService = apiService
+    init(dataLoader: MovieDataLoader = CompositeMovieDataLoader()) {
+        self.dataLoader = dataLoader
     }
     
     func searchMovies(
@@ -29,13 +29,18 @@ class MovieRepository: MovieRepositoryProtocol {
         language: String = "en-US",
         page: Int = 1
     ) async throws -> SearchResult {
-        let dto = try await apiService.searchMovies(
+        guard let result = try await dataLoader.searchMovies(
             query: query,
             includeAdult: includeAdult,
             language: language,
             page: page
-        )
-        return MovieMapper.toDomain(dto)
+        ) else {
+            throw NSError(
+                domain: "MovieRepository",
+                code: -1,
+                userInfo: [NSLocalizedDescriptionKey: "Failed to fetch movies"]
+            )
+        }
+        return result
     }
 }
-
