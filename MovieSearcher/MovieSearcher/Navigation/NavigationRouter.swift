@@ -1,10 +1,12 @@
 import UIKit
 
+@MainActor
 protocol NavigationRouter {
     func navigateToMovieDetail(movieId: Int)
     func showError(message: String, from viewController: UIViewController)
 }
 
+@MainActor
 class AppNavigationRouter: NavigationRouter {
     private weak var navigationController: UINavigationController?
     private let repository: MovieDetailRepositoryProtocol
