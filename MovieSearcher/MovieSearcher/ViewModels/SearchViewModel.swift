@@ -48,10 +48,9 @@ class SearchViewModel: SearchViewModelProtocol {
     // MARK: - Public Methods
     
     func searchMovies(query: String, page: Int = 1) {
-        // Cancel previous search
         searchTask?.cancel()
         
-        guard !query.isEmpty else {
+        guard !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             reset()
             return
         }
@@ -68,12 +67,9 @@ class SearchViewModel: SearchViewModelProtocol {
             do {
                 let searchResult = try await repository.searchMovies(
                     query: query,
-                    includeAdult: false,
-                    language: "en-US",
                     page: page
                 )
                 
-                // Check if task was cancelled
                 guard !Task.isCancelled else { return }
                 
                 if page == 1 {
@@ -85,18 +81,13 @@ class SearchViewModel: SearchViewModelProtocol {
                 currentPage = searchResult.currentPage
                 totalPages = searchResult.totalPages
                 isLoading = false
-                isEmpty = movies.isEmpty
+                isEmpty = searchResult.isEmpty
                 
             } catch {
                 guard !Task.isCancelled else { return }
                 
                 isLoading = false
-                
-                if let apiError = error as? APIError {
-                    errorMessage = apiError.errorDescription ?? "An error occurred"
-                } else {
-                    errorMessage = error.localizedDescription
-                }
+                errorMessage = error.localizedDescription
             }
         }
     }
