@@ -12,15 +12,18 @@ class SearchViewController: UIViewController {
     
     // MARK: - Properties
     private let viewModel: any SearchViewModelProtocol
+    private let router: NavigationRouter?
     private var cancellables = Set<AnyCancellable>()
     private let searchTextSubject = PassthroughSubject<String, Never>()
     
     // MARK: - Initialization
     
     init(
-        viewModel: any SearchViewModelProtocol
+        viewModel: any SearchViewModelProtocol,
+        router: NavigationRouter? = nil
     ) {
         self.viewModel = viewModel
+        self.router = router
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -215,10 +218,7 @@ extension SearchViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let movie = viewModel.movies[indexPath.row]
-        let repository = MovieRepository()
-        let detailViewModel = MovieDetailViewModel(movieId: movie.id, repository: repository)
-        let detailViewController = MovieDetailViewController(viewModel: detailViewModel)
-        navigationController?.pushViewController(detailViewController, animated: true)
+        router?.navigateToMovieDetail(movieId: movie.id)
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
