@@ -19,7 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let repository = MovieRepository()
         let viewModel = SearchViewModel(repository: repository)
-        let searchViewController = SearchViewController(viewModel: viewModel, repository: repository)
+        let searchViewController = SearchViewController(viewModel: viewModel)
         
         let navigationController = UINavigationController(rootViewController: searchViewController)
         window?.rootViewController = navigationController
