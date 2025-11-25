@@ -3,6 +3,7 @@ import Combine
 
 class MovieDetailViewController: UIViewController {
     private let viewModel: MovieDetailViewModel
+    private let router: NavigationRouter?
     private var cancellables = Set<AnyCancellable>()
     
     private lazy var scrollView: UIScrollView = {
@@ -74,8 +75,9 @@ class MovieDetailViewController: UIViewController {
         return indicator
     }()
     
-    init(viewModel: MovieDetailViewModel) {
+    init(viewModel: MovieDetailViewModel, router: NavigationRouter? = nil) {
         self.viewModel = viewModel
+        self.router = router
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -253,13 +255,7 @@ class MovieDetailViewController: UIViewController {
     }
     
     private func showError(message: String) {
-        let alert = UIAlertController(
-            title: "Error",
-            message: message,
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
+        router?.showError(message: message, from: self)
     }
 }
 
