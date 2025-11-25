@@ -17,6 +17,19 @@ A simple iOS app that allows users to search for movies and view their details u
 
 4. Build and run the project in Xcode
 
+## API
+
+This app uses [The Movie Database (TMDB) API](https://developers.themoviedb.org/3/getting-started/introduction).
+
+**Used Endpoints:**
+- `GET /search/movie` - Search for movies
+
+**Rate Limits:**
+- 40 requests per 10 seconds per API key
+- See [TMDB API Documentation](https://developers.themoviedb.org/3/getting-started/introduction) for details
+
+For complete API documentation, visit: https://developers.themoviedb.org/3
+
 ## Security Note
 
 The `Info.plist` file containing API keys is excluded from version control via `.gitignore`. Never commit your actual API keys to the repository.
