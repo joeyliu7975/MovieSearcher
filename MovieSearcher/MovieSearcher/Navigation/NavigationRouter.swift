@@ -8,19 +8,25 @@ protocol NavigationRouter {
 
 @MainActor
 class AppNavigationRouter: NavigationRouter {
+    typealias MovieDetailRepository = MovieDetailRepositoryProtocol & MovieAccountStatesRepositoryProtocol & MovieFavoriteRepositoryProtocol
     private weak var navigationController: UINavigationController?
-    private let repository: MovieDetailRepositoryProtocol
+    private let repository: MovieDetailRepository
     
     init(
         navigationController: UINavigationController,
-        repository: MovieDetailRepositoryProtocol = MovieRepository()
+        repository: MovieDetailRepository
     ) {
         self.navigationController = navigationController
         self.repository = repository
     }
     
     func navigateToMovieDetail(movieId: Int) {
-        let viewModel = MovieDetailViewModel(movieId: movieId, repository: repository)
+        let accountId = APIConfiguration.accountId
+        let viewModel = MovieDetailViewModel(
+            movieId: movieId,
+            accountId: accountId,
+            repository: repository
+        )
         let viewController = MovieDetailViewController(viewModel: viewModel, router: self)
         navigationController?.pushViewController(viewController, animated: true)
     }

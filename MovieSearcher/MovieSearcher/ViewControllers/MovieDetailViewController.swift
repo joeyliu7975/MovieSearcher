@@ -75,6 +75,13 @@ class MovieDetailViewController: UIViewController {
         return indicator
     }()
     
+    private lazy var favoriteButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.addTarget(self, action: #selector(favoriteButtonTapped), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
     init(viewModel: MovieDetailViewModel, router: NavigationRouter? = nil) {
         self.viewModel = viewModel
         self.router = router
@@ -105,6 +112,7 @@ class MovieDetailViewController: UIViewController {
         contentView.addSubview(overviewLabel)
         contentView.addSubview(infoStackView)
         view.addSubview(loadingIndicator)
+        view.addSubview(favoriteButton)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -146,7 +154,12 @@ class MovieDetailViewController: UIViewController {
             infoStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
             
             loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            
+            favoriteButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            favoriteButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            favoriteButton.widthAnchor.constraint(equalToConstant: 44),
+            favoriteButton.heightAnchor.constraint(equalToConstant: 44)
         ])
     }
     
@@ -175,6 +188,13 @@ class MovieDetailViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] errorMessage in
                 self?.showError(message: errorMessage)
+            }
+            .store(in: &cancellables)
+        
+        viewModel.$isFavorite
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isFavorite in
+                self?.favoriteButton.setImage(UIImage(named: isFavorite ? "heart_fill": "heart_hollow"), for: .normal)
             }
             .store(in: &cancellables)
     }
@@ -252,6 +272,10 @@ class MovieDetailViewController: UIViewController {
                 print("Failed to load image: \(error)")
             }
         }
+    }
+    
+    @objc private func favoriteButtonTapped() {
+        viewModel.toggleFavorite()
     }
     
     private func showError(message: String) {

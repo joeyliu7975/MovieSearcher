@@ -12,6 +12,7 @@ enum RepositoryError: LocalizedError {
     case invalidPage
     case invalidMovieId
     case dataUnavailable
+    case invalidAccountId
     
     var errorDescription: String? {
         switch self {
@@ -23,6 +24,8 @@ enum RepositoryError: LocalizedError {
             return "Invalid movie ID"
         case .dataUnavailable:
             return "Unable to fetch movie data"
+        case .invalidAccountId:
+            return "Invalid account ID"
         }
     }
 }
@@ -38,17 +41,32 @@ protocol MovieDetailRepositoryProtocol {
     func getMovieDetail(movieId: Int) async throws -> MovieDetail
 }
 
+protocol MovieAccountStatesRepositoryProtocol {
+    func getMovieAccountStates(movieId: Int) async throws -> MovieAccountStatesDTO
+}
+
+protocol MovieFavoriteRepositoryProtocol {
+    func markAsFavorite(
+        accountId: String,
+        movieId: Int,
+        favorite: Bool
+    ) async throws
+}
+
 class MovieRepository {
     private let dataLoader: MovieDataLoader
+    private let apiService: MovieAPIServiceProtocol
     private let defaultIncludeAdult: Bool
     private let defaultLanguage: String
     
     init(
         dataLoader: MovieDataLoader = CompositeMovieDataLoader(),
+        apiService: MovieAPIServiceProtocol = MovieAPIService(),
         includeAdult: Bool = false,
         language: String = "en-US"
     ) {
         self.dataLoader = dataLoader
+        self.apiService = apiService
         self.defaultIncludeAdult = includeAdult
         self.defaultLanguage = language
     }
@@ -96,5 +114,40 @@ extension MovieRepository: MovieDetailRepositoryProtocol {
         }
         
         return detail
+    }
+}
+
+extension MovieRepository: MovieAccountStatesRepositoryProtocol {
+    func getMovieAccountStates(movieId: Int) async throws -> MovieAccountStatesDTO {
+        guard movieId > 0 else {
+            throw RepositoryError.invalidMovieId
+        }
+        
+        return try await apiService.getMovieAccountStates(
+            movieId: movieId
+        )
+    }
+}
+
+extension MovieRepository: MovieFavoriteRepositoryProtocol {
+    func markAsFavorite(
+        accountId: String,
+        movieId: Int,
+        favorite: Bool
+    ) async throws {
+        guard movieId > 0 else {
+            throw RepositoryError.invalidMovieId
+        }
+        
+        guard !accountId.isEmpty else {
+            throw RepositoryError.invalidAccountId
+        }
+        
+        _ = try await apiService.markAsFavorite(
+            accountId: accountId,
+            mediaType: "movie",
+            mediaId: movieId,
+            favorite: favorite
+        )
     }
 }

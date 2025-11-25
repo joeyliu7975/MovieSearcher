@@ -38,5 +38,13 @@ struct APIConfiguration {
     
     static let imageBaseURL = "https://image.tmdb.org/t/p"
     static let defaultTimeout: TimeInterval = 30
+    
+    static var accountId: String? {
+        guard let accountId = Bundle.main.object(forInfoDictionaryKey: "TMDB_ACCOUNT_ID") as? String,
+              !accountId.isEmpty else {
+            return nil
+        }
+        return accountId
+    }
 }
 

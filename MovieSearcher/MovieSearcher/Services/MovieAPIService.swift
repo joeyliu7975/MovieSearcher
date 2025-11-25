@@ -18,9 +18,18 @@ protocol MovieAPIServiceProtocol {
         movieId: Int,
         language: String
     ) async throws -> MovieDetailDTO
+    func getMovieAccountStates(
+        movieId: Int
+    ) async throws -> MovieAccountStatesDTO
+    func markAsFavorite(
+        accountId: String,
+        mediaType: String,
+        mediaId: Int,
+        favorite: Bool
+    ) async throws -> FavoriteResponseDTO
 }
 
-class MovieAPIService: MovieAPIServiceProtocol {
+class MovieAPIService: MovieAPIServiceProtocol {    
     private let networkService: NetworkServiceProtocol
     
     init(networkService: NetworkServiceProtocol = NetworkService()) {
@@ -51,6 +60,30 @@ class MovieAPIService: MovieAPIServiceProtocol {
             language: language
         )
         return try await networkService.request(endpoint, responseType: MovieDetailDTO.self)
+    }
+    
+    func getMovieAccountStates(
+        movieId: Int
+    ) async throws -> MovieAccountStatesDTO {
+        let endpoint = MovieEndpoints.getMovieAccountStates(
+            movieId: movieId
+        )
+        return try await networkService.request(endpoint, responseType: MovieAccountStatesDTO.self)
+    }
+    
+    func markAsFavorite(
+        accountId: String,
+        mediaType: String,
+        mediaId: Int,
+        favorite: Bool
+    ) async throws -> FavoriteResponseDTO {
+        let endpoint = MovieEndpoints.markAsFavorite(
+            accountId: accountId,
+            mediaType: mediaType,
+            mediaId: mediaId,
+            favorite: favorite
+        )
+        return try await networkService.request(endpoint, responseType: FavoriteResponseDTO.self)
     }
 }
 
