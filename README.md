@@ -23,6 +23,7 @@ This app uses [The Movie Database (TMDB) API](https://developers.themoviedb.org/
 
 **Used Endpoints:**
 - `GET /search/movie` - Search for movies
+- `GET /movie/{movie_id}` - Get movie details by ID
 
 **Rate Limits:**
 - 40 requests per 10 seconds per API key
