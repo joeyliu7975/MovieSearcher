@@ -47,5 +47,15 @@ enum MovieMapper {
             totalResults: dto.totalResults
         )
     }
+    
+    /// Convert MovieAccountStatesDTO to MovieAccountStates domain model
+    static func toDomain(_ dto: MovieAccountStatesDTO) -> MovieAccountStates {
+        return MovieAccountStates(
+            id: dto.id,
+            favorite: dto.favorite,
+            rated: dto.rated,
+            watchlist: dto.watchlist
+        )
+    }
 }
 

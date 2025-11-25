@@ -42,7 +42,7 @@ protocol MovieDetailRepositoryProtocol {
 }
 
 protocol MovieAccountStatesRepositoryProtocol {
-    func getMovieAccountStates(movieId: Int) async throws -> MovieAccountStatesDTO
+    func getMovieAccountStates(movieId: Int) async throws -> MovieAccountStates
 }
 
 protocol MovieFavoriteRepositoryProtocol {
@@ -55,18 +55,18 @@ protocol MovieFavoriteRepositoryProtocol {
 
 class MovieRepository {
     private let dataLoader: MovieDataLoader
-    private let apiService: MovieAPIServiceProtocol
+    private let accountStatesLoader: AccountStatesLoader
     private let defaultIncludeAdult: Bool
     private let defaultLanguage: String
     
     init(
         dataLoader: MovieDataLoader = CompositeMovieDataLoader(),
-        apiService: MovieAPIServiceProtocol = MovieAPIService(),
+        accountStatesLoader: AccountStatesLoader = CompositeAccountStatesLoader(),
         includeAdult: Bool = false,
         language: String = "en-US"
     ) {
         self.dataLoader = dataLoader
-        self.apiService = apiService
+        self.accountStatesLoader = accountStatesLoader
         self.defaultIncludeAdult = includeAdult
         self.defaultLanguage = language
     }
@@ -118,14 +118,20 @@ extension MovieRepository: MovieDetailRepositoryProtocol {
 }
 
 extension MovieRepository: MovieAccountStatesRepositoryProtocol {
-    func getMovieAccountStates(movieId: Int) async throws -> MovieAccountStatesDTO {
+    func getMovieAccountStates(movieId: Int) async throws -> MovieAccountStates {
         guard movieId > 0 else {
             throw RepositoryError.invalidMovieId
         }
         
-        return try await apiService.getMovieAccountStates(
-            movieId: movieId
-        )
+        let accountId = APIConfiguration.accountId
+        guard let states = try await accountStatesLoader.getAccountStates(
+            movieId: movieId,
+            accountId: accountId
+        ) else {
+            throw RepositoryError.dataUnavailable
+        }
+        
+        return states
     }
 }
 
@@ -143,10 +149,9 @@ extension MovieRepository: MovieFavoriteRepositoryProtocol {
             throw RepositoryError.invalidAccountId
         }
         
-        _ = try await apiService.markAsFavorite(
+        try await accountStatesLoader.markAsFavorite(
             accountId: accountId,
-            mediaType: "movie",
-            mediaId: movieId,
+            movieId: movieId,
             favorite: favorite
         )
     }

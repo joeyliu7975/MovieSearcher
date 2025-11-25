@@ -271,4 +271,15 @@ enum MovieEntityMapper {
             )
         }
     }
+    
+    /// Convert FavoriteEntity to MovieAccountStates domain model
+    /// Note: Currently only favorite status is stored, rated and watchlist default to false
+    static func toAccountStatesDomain(_ favoriteEntity: FavoriteEntity) -> MovieAccountStates {
+        return MovieAccountStates(
+            id: Int(favoriteEntity.movieId),
+            favorite: true, // If entity exists, favorite is true
+            rated: false,   // Currently not stored, default to false
+            watchlist: false // Currently not stored, default to false
+        )
+    }
 }

@@ -6,7 +6,7 @@ class MovieDetailViewModel: ObservableObject {
     @Published private(set) var movieDetail: MovieDetail?
     @Published private(set) var isLoading = false
     @Published private(set) var errorMessage: String?
-    @Published private(set) var isFavorite = false
+    @Published private(set) var isFavorite: Bool? = nil
     
     typealias MovieDetailRepository = MovieDetailRepositoryProtocol & MovieAccountStatesRepositoryProtocol & MovieFavoriteRepositoryProtocol
      
@@ -51,6 +51,8 @@ class MovieDetailViewModel: ObservableObject {
     }
     
     func loadAccountStates() {
+        guard let accountId = accountId else { return }
+        
         accountStatesTask?.cancel()
         
         accountStatesTask = Task {
@@ -71,7 +73,7 @@ class MovieDetailViewModel: ObservableObject {
     }
     
     func toggleFavorite() {
-        guard let accountId = accountId else { return }
+        guard let accountId = accountId, let isFavorite = isFavorite else { return }
         let newFavoriteState = !isFavorite
         
         Task {
@@ -84,7 +86,7 @@ class MovieDetailViewModel: ObservableObject {
                 
                 guard !Task.isCancelled else { return }
                 
-                isFavorite = newFavoriteState
+                self.isFavorite = newFavoriteState
             } catch {
                 guard !Task.isCancelled else { return }
                 errorMessage = "Failed to update favorite: \(error.localizedDescription)"

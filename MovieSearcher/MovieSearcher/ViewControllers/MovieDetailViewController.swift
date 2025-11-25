@@ -77,6 +77,7 @@ class MovieDetailViewController: UIViewController {
     
     private lazy var favoriteButton: UIButton = {
         let button = UIButton(type: .custom)
+        button.isHidden = true
         button.addTarget(self, action: #selector(favoriteButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -192,8 +193,10 @@ class MovieDetailViewController: UIViewController {
             .store(in: &cancellables)
         
         viewModel.$isFavorite
+            .compactMap { $0 }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isFavorite in
+                self?.favoriteButton.isHidden = false
                 self?.favoriteButton.setImage(UIImage(named: isFavorite ? "heart_fill": "heart_hollow"), for: .normal)
             }
             .store(in: &cancellables)
