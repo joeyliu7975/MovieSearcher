@@ -9,6 +9,7 @@ import Foundation
 
 enum MovieEndpoints {
     case searchMovies(query: String, includeAdult: Bool, language: String, page: Int)
+    case getMovieDetail(movieId: Int, language: String)
 }
 
 extension MovieEndpoints: APIEndpoint {
@@ -16,6 +17,8 @@ extension MovieEndpoints: APIEndpoint {
         switch self {
         case .searchMovies:
             return "/search/movie"
+        case .getMovieDetail(let movieId, _):
+            return "/movie/\(movieId)"
         }
     }
     
@@ -34,6 +37,11 @@ extension MovieEndpoints: APIEndpoint {
                 "api_key": APIConfiguration.apiKey
             ]
             return params
+        case .getMovieDetail(_, let language):
+            return [
+                "language": language,
+                "api_key": APIConfiguration.apiKey
+            ]
         }
     }
 }

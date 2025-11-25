@@ -14,6 +14,10 @@ protocol MovieAPIServiceProtocol {
         language: String,
         page: Int
     ) async throws -> SearchResponseDTO
+    func getMovieDetail(
+        movieId: Int,
+        language: String
+    ) async throws -> MovieDetailDTO
 }
 
 class MovieAPIService: MovieAPIServiceProtocol {
@@ -36,6 +40,17 @@ class MovieAPIService: MovieAPIServiceProtocol {
             page: page
         )
         return try await networkService.request(endpoint, responseType: SearchResponseDTO.self)
+    }
+    
+    func getMovieDetail(
+        movieId: Int,
+        language: String
+    ) async throws -> MovieDetailDTO {
+        let endpoint = MovieEndpoints.getMovieDetail(
+            movieId: movieId,
+            language: language
+        )
+        return try await networkService.request(endpoint, responseType: MovieDetailDTO.self)
     }
 }
 
