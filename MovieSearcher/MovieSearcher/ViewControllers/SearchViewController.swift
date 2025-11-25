@@ -214,7 +214,11 @@ extension SearchViewController: UITableViewDataSource {
 extension SearchViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        // TODO: Navigate to detail view
+        let movie = viewModel.movies[indexPath.row]
+        let repository = MovieRepository()
+        let detailViewModel = MovieDetailViewModel(movieId: movie.id, repository: repository)
+        let detailViewController = MovieDetailViewController(viewModel: detailViewModel)
+        navigationController?.pushViewController(detailViewController, animated: true)
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
