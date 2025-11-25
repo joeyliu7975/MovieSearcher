@@ -47,4 +47,29 @@ class CompositeMovieDataLoader: MovieDataLoader {
         
         return remote
     }
+    
+    func getMovieDetail(
+        movieId: Int,
+        language: String
+    ) async throws -> MovieDetail? {
+        if let local = try await localDataLoader.getMovieDetail(
+            movieId: movieId,
+            language: language
+        ) {
+            return local
+        }
+        
+        guard let remote = try await remoteDataLoader.getMovieDetail(
+            movieId: movieId,
+            language: language
+        ) else {
+            return nil
+        }
+        
+        Task.detached { [weak self] in
+            try? await self?.localDataLoader.saveMovieDetail(remote)
+        }
+        
+        return remote
+    }
 }

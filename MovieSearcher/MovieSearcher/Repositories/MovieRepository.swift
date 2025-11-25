@@ -40,18 +40,15 @@ protocol MovieDetailRepositoryProtocol {
 
 class MovieRepository {
     private let dataLoader: MovieDataLoader
-    private let apiService: MovieAPIServiceProtocol
     private let defaultIncludeAdult: Bool
     private let defaultLanguage: String
     
     init(
         dataLoader: MovieDataLoader = CompositeMovieDataLoader(),
-        apiService: MovieAPIServiceProtocol = MovieAPIService(),
         includeAdult: Bool = false,
         language: String = "en-US"
     ) {
         self.dataLoader = dataLoader
-        self.apiService = apiService
         self.defaultIncludeAdult = includeAdult
         self.defaultLanguage = language
     }
@@ -91,11 +88,13 @@ extension MovieRepository: MovieDetailRepositoryProtocol {
             throw RepositoryError.invalidMovieId
         }
         
-        let dto = try await apiService.getMovieDetail(
+        guard let detail = try await dataLoader.getMovieDetail(
             movieId: movieId,
             language: defaultLanguage
-        )
+        ) else {
+            throw RepositoryError.dataUnavailable
+        }
         
-        return MovieDetailMapper.toDomain(dto)
+        return detail
     }
 }

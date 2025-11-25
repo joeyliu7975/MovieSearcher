@@ -21,4 +21,15 @@ class RemoteMovieDataLoader: MovieDataLoader {
         )
         return MovieMapper.toDomain(dto)
     }
+    
+    func getMovieDetail(
+        movieId: Int,
+        language: String
+    ) async throws -> MovieDetail? {
+        let dto = try await apiService.getMovieDetail(
+            movieId: movieId,
+            language: language
+        )
+        return MovieDetailMapper.toDomain(dto)
+    }
 }

@@ -14,4 +14,9 @@ protocol MovieDataLoader {
         language: String,
         page: Int
     ) async throws -> SearchResult?
+    
+    func getMovieDetail(
+        movieId: Int,
+        language: String
+    ) async throws -> MovieDetail?
 }
