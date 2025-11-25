@@ -13,6 +13,7 @@ class SearchViewController: UIViewController {
     // MARK: - Properties
     private let viewModel: any SearchViewModelProtocol
     private var cancellables = Set<AnyCancellable>()
+    private let searchTextSubject = PassthroughSubject<String, Never>()
     
     // MARK: - Initialization
     
@@ -30,6 +31,7 @@ class SearchViewController: UIViewController {
         let searchBar = UISearchBar()
         searchBar.placeholder = "Search movies..."
         searchBar.delegate = self
+        searchBar.showsCancelButton = true
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         return searchBar
     }()
@@ -143,6 +145,18 @@ class SearchViewController: UIViewController {
                 self?.viewModel.clearError()
             }
             .store(in: &cancellables)
+        
+        searchTextSubject
+            .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+            .removeDuplicates()
+            .sink { [weak self] searchText in
+                if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    self?.viewModel.reset()
+                } else {
+                    self?.viewModel.searchMovies(query: searchText, page: 1)
+                }
+            }
+            .store(in: &cancellables)
     }
     
     // MARK: - UI Updates
@@ -168,8 +182,13 @@ extension SearchViewController: UISearchBarDelegate {
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        // Optional: Implement debouncing for real-time search
-        // For now, only search on button click
+        searchTextSubject.send(searchText)
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+        searchBar.text = ""
+        viewModel.reset()
     }
 }
 
