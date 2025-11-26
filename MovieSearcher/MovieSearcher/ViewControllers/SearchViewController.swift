@@ -37,7 +37,7 @@ class SearchViewController: UIViewController {
         searchBar.placeholder = "Search movies..."
         searchBar.delegate = self
         searchBar.showsCancelButton = true
-        searchBar.accessibilityIdentifier = "searchBar"
+        searchBar.accessibilityIdentifier = AccessibilityIdentifiers.Search.searchBar
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         return searchBar
     }()
@@ -47,7 +47,7 @@ class SearchViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(MovieTableViewCell.self, forCellReuseIdentifier: MovieTableViewCell.identifier)
-        tableView.accessibilityIdentifier = "moviesTableView"
+        tableView.accessibilityIdentifier = AccessibilityIdentifiers.Search.moviesTableView
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 120
@@ -57,7 +57,7 @@ class SearchViewController: UIViewController {
     private lazy var loadingIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .large)
         indicator.hidesWhenStopped = true
-        indicator.accessibilityIdentifier = "loadingIndicator"
+        indicator.accessibilityIdentifier = AccessibilityIdentifiers.Search.loadingIndicator
         indicator.translatesAutoresizingMaskIntoConstraints = false
         return indicator
     }()
@@ -69,7 +69,7 @@ class SearchViewController: UIViewController {
         label.textColor = .secondaryLabel
         label.font = .systemFont(ofSize: 16)
         label.isHidden = false
-        label.accessibilityIdentifier = "emptyStateLabel"
+        label.accessibilityIdentifier = AccessibilityIdentifiers.Search.emptyStateLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
