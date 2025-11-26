@@ -29,7 +29,7 @@ final class FavoriteUITests: XCTestCase {
             searchBar.tap()
             searchBar.typeText("Movie")
             
-            let tableView = app.tables["moviesTableView"]
+            let tableView = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
             let firstCell = tableView.cells.firstMatch
             if firstCell.waitForExistence(timeout: 5.0) {
                 firstCell.tap()
@@ -43,7 +43,7 @@ final class FavoriteUITests: XCTestCase {
     func testToggleFavorite_AddToFavorites() throws {
         navigateToDetail()
         
-        let favoriteButton = app.buttons["favoriteButton"]
+        let favoriteButton = app.buttons[AccessibilityIdentifiers.Detail.favoriteButton]
         
         // Wait for favorite button to appear (after account states load)
         // Note: In a real scenario, we would wait with proper timeout
@@ -66,7 +66,7 @@ final class FavoriteUITests: XCTestCase {
     func testToggleFavorite_RemoveFromFavorites() throws {
         navigateToDetail()
         
-        let favoriteButton = app.buttons["favoriteButton"]
+        let favoriteButton = app.buttons[AccessibilityIdentifiers.Detail.favoriteButton]
         
         if favoriteButton.waitForExistence(timeout: 5.0) && favoriteButton.isHittable {
             // Tap twice to toggle on and off
@@ -85,7 +85,7 @@ final class FavoriteUITests: XCTestCase {
         navigateToDetail()
         
         // Favorite button should appear after account states are loaded
-        let favoriteButton = app.buttons["favoriteButton"]
+        let favoriteButton = app.buttons[AccessibilityIdentifiers.Detail.favoriteButton]
         
         // In a real test with proper account setup, we would verify:
         // 1. Button appears after account states load

@@ -31,7 +31,7 @@ final class NavigationUITests: XCTestCase {
         searchBar.typeText("Movie")
         
         // Wait for search results
-        let tableView = app.tables["moviesTableView"]
+        let tableView = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
         let firstCell = tableView.cells.firstMatch
         XCTAssertTrue(firstCell.waitForExistence(timeout: 5.0), "Search results should appear")
         
@@ -40,7 +40,7 @@ final class NavigationUITests: XCTestCase {
         
         // Wait for navigation to detail view
         // Verify we're on the detail screen by checking for detail-specific elements
-        let detailLoadingIndicator = app.activityIndicators["detailLoadingIndicator"]
+        let detailLoadingIndicator = app.activityIndicators[AccessibilityIdentifiers.Detail.loadingIndicator]
         // The detail view should load, so we wait a bit
         sleep(2)
         
@@ -58,7 +58,7 @@ final class NavigationUITests: XCTestCase {
         searchBar.tap()
         searchBar.typeText("Movie")
         
-        let tableView = app.tables["moviesTableView"]
+        let tableView = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
         let firstCell = tableView.cells.firstMatch
         XCTAssertTrue(firstCell.waitForExistence(timeout: 5.0))
         

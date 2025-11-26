@@ -29,7 +29,7 @@ final class MovieDetailViewControllerUITests: XCTestCase {
             searchBar.tap()
             searchBar.typeText("Movie")
             
-            let tableView = app.tables["moviesTableView"]
+            let tableView = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
             let firstCell = tableView.cells.firstMatch
             if firstCell.waitForExistence(timeout: 5.0) {
                 firstCell.tap()
@@ -49,7 +49,7 @@ final class MovieDetailViewControllerUITests: XCTestCase {
         // so we check for the view's existence through other means
         
         // Verify loading indicator exists (might be hidden if loaded quickly)
-        let detailLoadingIndicator = app.activityIndicators["detailLoadingIndicator"]
+        let detailLoadingIndicator = app.activityIndicators[AccessibilityIdentifiers.Detail.loadingIndicator]
         // Indicator might not be visible if data loads quickly
         
         // Verify we're on detail screen by checking navigation title or back button
@@ -62,7 +62,7 @@ final class MovieDetailViewControllerUITests: XCTestCase {
         navigateToDetail()
         
         // Loading indicator might appear briefly
-        let detailLoadingIndicator = app.activityIndicators["detailLoadingIndicator"]
+        let detailLoadingIndicator = app.activityIndicators[AccessibilityIdentifiers.Detail.loadingIndicator]
         // In a real scenario with network delay, we would verify it appears and disappears
         // For now, we just verify the element exists in the view hierarchy
     }
@@ -72,7 +72,7 @@ final class MovieDetailViewControllerUITests: XCTestCase {
         navigateToDetail()
         
         // Wait for detail to load and favorite button to appear
-        let favoriteButton = app.buttons["favoriteButton"]
+        let favoriteButton = app.buttons[AccessibilityIdentifiers.Detail.favoriteButton]
         
         // Favorite button might take time to appear (after account states load)
         // In a real test, we would wait for it with proper timeout

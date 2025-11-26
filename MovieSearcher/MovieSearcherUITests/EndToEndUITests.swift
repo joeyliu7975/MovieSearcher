@@ -35,7 +35,7 @@ final class EndToEndUITests: XCTestCase {
         searchBar.typeText("Batman")
         
         // Step 3: Wait for search results
-        let tableView = app.tables["moviesTableView"]
+        let tableView = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
         let firstCell = tableView.cells.firstMatch
         XCTAssertTrue(firstCell.waitForExistence(timeout: 5.0), "Search should return results")
         
@@ -53,7 +53,7 @@ final class EndToEndUITests: XCTestCase {
         XCTAssertTrue(backButton.exists, "Should navigate to detail screen")
         
         // Step 7: Toggle favorite (if button is available)
-        let favoriteButton = app.buttons["favoriteButton"]
+        let favoriteButton = app.buttons[AccessibilityIdentifiers.Detail.favoriteButton]
         if favoriteButton.waitForExistence(timeout: 5.0) && favoriteButton.isHittable {
             favoriteButton.tap()
             sleep(1)
@@ -68,7 +68,7 @@ final class EndToEndUITests: XCTestCase {
             XCTAssertTrue(searchBarAfterBack.waitForExistence(timeout: 2.0), "Should return to search screen")
             
             // Step 10: Verify search results are still visible
-            let tableViewAfterBack = app.tables["moviesTableView"]
+            let tableViewAfterBack = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
             XCTAssertTrue(tableViewAfterBack.exists, "Search results should still be visible")
         }
     }
@@ -83,7 +83,7 @@ final class EndToEndUITests: XCTestCase {
         searchBar.typeText("Movie")
         
         // Step 2: Wait for initial results
-        let tableView = app.tables["moviesTableView"]
+        let tableView = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
         let firstCell = tableView.cells.firstMatch
         XCTAssertTrue(firstCell.waitForExistence(timeout: 5.0), "Initial results should load")
         
@@ -98,7 +98,7 @@ final class EndToEndUITests: XCTestCase {
             
             // Step 4: Verify more cells might have loaded
             // Note: In a real scenario with pagination, we would verify cell count increased
-            let tableViewAfterScroll = app.tables["moviesTableView"]
+            let tableViewAfterScroll = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
             XCTAssertTrue(tableViewAfterScroll.exists, "Table view should still exist after scroll")
         }
         
@@ -139,7 +139,7 @@ final class EndToEndUITests: XCTestCase {
         searchBarAfterCancel.typeText("Movie")
         
         // Step 5: Verify results appear
-        let tableView = app.tables["moviesTableView"]
+        let tableView = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
         let firstCell = tableView.cells.firstMatch
         XCTAssertTrue(firstCell.waitForExistence(timeout: 5.0), "Should get results after resuming search")
     }
@@ -154,7 +154,7 @@ final class EndToEndUITests: XCTestCase {
         searchBar.typeText("Movie")
         
         // Step 2: Navigate to first detail
-        let tableView = app.tables["moviesTableView"]
+        let tableView = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
         let firstCell = tableView.cells.firstMatch
         XCTAssertTrue(firstCell.waitForExistence(timeout: 5.0))
         

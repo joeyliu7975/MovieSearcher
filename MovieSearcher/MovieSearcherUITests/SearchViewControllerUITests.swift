@@ -28,7 +28,7 @@ final class SearchViewControllerUITests: XCTestCase {
         let emptyStateLabel = app.staticTexts["Search for movies to get started"]
         XCTAssertTrue(emptyStateLabel.exists, "Empty state label should be visible initially")
         
-        let tableView = app.tables["moviesTableView"]
+        let tableView = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
         XCTAssertTrue(tableView.exists, "Table view should exist")
         XCTAssertEqual(tableView.cells.count, 0, "Table view should have no cells initially")
     }
@@ -44,7 +44,7 @@ final class SearchViewControllerUITests: XCTestCase {
         searchBar.typeText("Batman")
         
         // Wait for search results
-        let tableView = app.tables["moviesTableView"]
+        let tableView = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
         let firstCell = tableView.cells.firstMatch
         
         // Wait for at least one cell to appear (mock data should return results)
@@ -105,7 +105,7 @@ final class SearchViewControllerUITests: XCTestCase {
         searchBar.typeText("Test")
         
         // Loading indicator might appear briefly
-        let loadingIndicator = app.activityIndicators["loadingIndicator"]
+        let loadingIndicator = app.activityIndicators[AccessibilityIdentifiers.Search.loadingIndicator]
         // Note: Loading might be too fast to catch, so we just verify it exists in the view hierarchy
         // In real tests with network delays, we would wait for it to appear and disappear
     }
@@ -120,7 +120,7 @@ final class SearchViewControllerUITests: XCTestCase {
         searchBar.tap()
         searchBar.typeText("Movie")
         
-        let tableView = app.tables["moviesTableView"]
+        let tableView = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
         XCTAssertTrue(tableView.waitForExistence(timeout: 2.0))
         
         // Wait for cells to appear
@@ -142,7 +142,7 @@ final class SearchViewControllerUITests: XCTestCase {
         searchBar.tap()
         searchBar.typeText("Movie")
         
-        let tableView = app.tables["moviesTableView"]
+        let tableView = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
         XCTAssertTrue(tableView.waitForExistence(timeout: 2.0))
         
         // Wait for initial results
