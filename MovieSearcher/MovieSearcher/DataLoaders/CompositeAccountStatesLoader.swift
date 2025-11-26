@@ -8,12 +8,12 @@
 import Foundation
 
 class CompositeAccountStatesLoader: AccountStatesLoader {
-    private let localLoader: LocalAccountStatesLoader
-    private let remoteLoader: RemoteAccountStatesLoader
+    private let localLoader: AccountStatesLoader
+    private let remoteLoader: AccountStatesLoader
     
     init(
-        localLoader: LocalAccountStatesLoader = LocalAccountStatesLoader(),
-        remoteLoader: RemoteAccountStatesLoader = RemoteAccountStatesLoader()
+        localLoader: AccountStatesLoader = LocalAccountStatesLoader(),
+        remoteLoader: AccountStatesLoader = RemoteAccountStatesLoader()
     ) {
         self.localLoader = localLoader
         self.remoteLoader = remoteLoader

@@ -8,9 +8,9 @@
 import Foundation
 
 class LocalAccountStatesStore: AccountStatesStore {
-    private let dataAccess: LocalAccountStatesDataAccess
+    private let dataAccess: AccountStatesDataAccessProtocol
     
-    init(dataAccess: LocalAccountStatesDataAccess = LocalAccountStatesDataAccess()) {
+    init(dataAccess: AccountStatesDataAccessProtocol = LocalAccountStatesDataAccess()) {
         self.dataAccess = dataAccess
     }
     

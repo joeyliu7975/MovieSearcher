@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-class LocalAccountStatesDataAccess {
+class LocalAccountStatesDataAccess: AccountStatesDataAccessProtocol {
     private let coreDataStack: CoreDataStack
     
     init(coreDataStack: CoreDataStack = .shared) {

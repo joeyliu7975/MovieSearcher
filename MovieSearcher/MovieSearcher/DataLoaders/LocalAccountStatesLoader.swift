@@ -8,9 +8,9 @@
 import Foundation
 
 class LocalAccountStatesLoader: AccountStatesLoader {
-    private let dataAccess: LocalAccountStatesDataAccess
+    private let dataAccess: AccountStatesDataAccessProtocol
     
-    init(dataAccess: LocalAccountStatesDataAccess = LocalAccountStatesDataAccess()) {
+    init(dataAccess: AccountStatesDataAccessProtocol = LocalAccountStatesDataAccess()) {
         self.dataAccess = dataAccess
     }
     
@@ -35,10 +35,6 @@ class LocalAccountStatesLoader: AccountStatesLoader {
             accountId: accountId,
             isFavorite: favorite
         )
-    }
-    
-    func saveAccountStates(_ states: MovieAccountStates, accountId: String) async throws {
-        try await dataAccess.saveAccountStates(states, accountId: accountId)
     }
 }
 
