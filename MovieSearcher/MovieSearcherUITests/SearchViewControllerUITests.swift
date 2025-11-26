@@ -71,7 +71,7 @@ final class SearchViewControllerUITests: XCTestCase {
         }
         
         // Verify search bar is cleared
-        XCTAssertEqual(searchBar.value as? String ?? "", "", "Search bar should be cleared after cancel")
+        XCTAssertEqual(searchBar.value as? String ?? "", "\(searchBar.placeholderValue ?? "")", "Search bar should be cleared after cancel")
         
         // Verify empty state is shown again
         let emptyStateLabel = app.staticTexts["Search for movies to get started"]
