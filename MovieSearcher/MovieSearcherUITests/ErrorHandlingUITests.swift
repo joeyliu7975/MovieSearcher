@@ -51,7 +51,7 @@ final class ErrorHandlingUITests: XCTestCase {
             searchBar.tap()
             searchBar.typeText("Movie")
             
-            let tableView = app.tables["moviesTableView"]
+            let tableView = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
             let firstCell = tableView.cells.firstMatch
             if firstCell.waitForExistence(timeout: 5.0) {
                 firstCell.tap()
