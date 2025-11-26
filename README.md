@@ -71,3 +71,77 @@ This app uses [The Movie Database (TMDB) API](https://developers.themoviedb.org/
 - `POST /account/{account_id}/favorite` - Mark movie as favorite
 
 **Rate Limits:** 40 requests per 10 seconds per API key
+
+## Testing
+
+This project includes comprehensive **Unit Tests** and **UI Tests** to ensure code quality and reliability.
+
+### Unit Tests
+
+Unit tests cover the core business logic and data layer components:
+
+- **Repository Tests** (`MovieRepositoryTests.swift`)
+  - Search movies (happy & sad paths)
+  - Get movie details (happy & sad paths)
+  - Get account states (happy & sad paths)
+  - Mark as favorite (happy & sad paths)
+
+- **ViewModel Tests**
+  - `SearchViewModelTests.swift` - Search functionality, pagination, error handling
+  - `MovieDetailViewModelTests.swift` - Detail loading, favorite toggling, account states
+
+- **Data Loader Tests**
+  - `CompositeMovieDataLoaderTests.swift` - Composite pattern for local/remote loading
+  - `CompositeAccountStatesLoaderTests.swift` - Account states loading with rollback
+  - `CachingMovieDataDecoratorTests.swift` - Caching decorator functionality
+
+**Running Unit Tests:**
+```bash
+# In Xcode: Cmd + U
+# Or via command line:
+xcodebuild test -scheme MovieSearcher -destination 'platform=iOS Simulator,name=iPhone 15'
+```
+
+### UI Tests
+
+UI tests verify the complete user experience and interactions:
+
+- **Search Tests** (`SearchViewControllerUITests.swift`)
+  - Initial empty state
+  - Successful search
+  - Cancel button functionality
+  - Loading indicators
+  - Table view display
+  - Scroll to load more
+
+- **Navigation Tests** (`NavigationUITests.swift`)
+  - Navigate to movie detail
+  - Navigate back from detail
+
+- **Detail Tests** (`MovieDetailViewControllerUITests.swift`)
+  - Detail display
+  - Loading state
+  - Favorite button visibility
+  - Content scrolling
+
+- **Favorite Tests** (`FavoriteUITests.swift`)
+  - Toggle favorite status
+  - Button state updates
+
+- **Error Handling Tests** (`ErrorHandlingUITests.swift`)
+  - Search error display
+  - Detail load error
+  - Network error handling
+
+- **End-to-End Tests** (`EndToEndUITests.swift`)
+  - Complete search-to-detail flow
+  - Search pagination flow
+  - Search cancel and resume
+  - Multiple detail navigation
+
+**Running UI Tests:**
+```bash
+# In Xcode: Select MovieSearcherUITests scheme and Cmd + U
+# Or via command line:
+xcodebuild test -scheme MovieSearcher -destination 'platform=iOS Simulator,name=iPhone 15' -only-testing:MovieSearcherUITests
+```
