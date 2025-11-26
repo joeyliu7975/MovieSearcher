@@ -8,10 +8,10 @@
 import Foundation
 
 class LocalAccountStatesLoader: AccountStatesLoader {
-    private let localDataLoader: LocalMovieDataLoader
+    private let dataAccess: LocalAccountStatesDataAccess
     
-    init(localDataLoader: LocalMovieDataLoader = LocalMovieDataLoader()) {
-        self.localDataLoader = localDataLoader
+    init(dataAccess: LocalAccountStatesDataAccess = LocalAccountStatesDataAccess()) {
+        self.dataAccess = dataAccess
     }
     
     func getAccountStates(movieId: Int, accountId: String?) async throws -> MovieAccountStates? {
@@ -19,7 +19,7 @@ class LocalAccountStatesLoader: AccountStatesLoader {
             return nil
         }
         
-        return try await localDataLoader.getAccountStates(
+        return try await dataAccess.getAccountStates(
             movieId: movieId,
             accountId: accountId
         )
@@ -30,7 +30,7 @@ class LocalAccountStatesLoader: AccountStatesLoader {
         movieId: Int,
         favorite: Bool
     ) async throws {
-        try await localDataLoader.saveFavoriteStatus(
+        try await dataAccess.saveFavoriteStatus(
             movieId: movieId,
             accountId: accountId,
             isFavorite: favorite
@@ -38,7 +38,7 @@ class LocalAccountStatesLoader: AccountStatesLoader {
     }
     
     func saveAccountStates(_ states: MovieAccountStates, accountId: String) async throws {
-        try await localDataLoader.saveAccountStates(states, accountId: accountId)
+        try await dataAccess.saveAccountStates(states, accountId: accountId)
     }
 }
 

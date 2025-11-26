@@ -1,15 +1,15 @@
 import Foundation
 
 class CompositeMovieDataLoader: MovieDataLoader {
-    private let localDataLoader: LocalMovieDataLoader
-    private let remoteDataLoader: RemoteMovieDataLoader
+    private let localLoader: MovieDataLoader
+    private let remoteLoader: MovieDataLoader
     
     init(
-        localDataLoader: LocalMovieDataLoader = LocalMovieDataLoader(),
-        remoteDataLoader: RemoteMovieDataLoader = RemoteMovieDataLoader()
+        localLoader: MovieDataLoader = LocalMovieDataLoader(),
+        remoteLoader: MovieDataLoader = RemoteMovieDataLoader()
     ) {
-        self.localDataLoader = localDataLoader
-        self.remoteDataLoader = remoteDataLoader
+        self.localLoader = localLoader
+        self.remoteLoader = remoteLoader
     }
     
     func searchMovies(
@@ -18,7 +18,7 @@ class CompositeMovieDataLoader: MovieDataLoader {
         language: String,
         page: Int
     ) async throws -> SearchResult? {
-        if let local = try await localDataLoader.searchMovies(
+        if let local = try await localLoader.searchMovies(
             query: query,
             includeAdult: includeAdult,
             language: language,
@@ -27,49 +27,28 @@ class CompositeMovieDataLoader: MovieDataLoader {
             return local
         }
         
-        guard let remote = try await remoteDataLoader.searchMovies(
+        return try await remoteLoader.searchMovies(
             query: query,
             includeAdult: includeAdult,
             language: language,
             page: page
-        ) else {
-            return nil
-        }
-        
-        Task.detached { [weak self] in
-            try? await self?.localDataLoader.saveSearchResult(
-                remote,
-                query: query,
-                page: page,
-                language: language
-            )
-        }
-        
-        return remote
+        )
     }
     
     func getMovieDetail(
         movieId: Int,
         language: String
     ) async throws -> MovieDetail? {
-        if let local = try await localDataLoader.getMovieDetail(
+        if let local = try await localLoader.getMovieDetail(
             movieId: movieId,
             language: language
         ) {
             return local
         }
         
-        guard let remote = try await remoteDataLoader.getMovieDetail(
+        return try await remoteLoader.getMovieDetail(
             movieId: movieId,
             language: language
-        ) else {
-            return nil
-        }
-        
-        Task.detached { [weak self] in
-            try? await self?.localDataLoader.saveMovieDetail(remote)
-        }
-        
-        return remote
+        )
     }
 }

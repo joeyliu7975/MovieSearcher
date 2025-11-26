@@ -21,43 +21,24 @@ class CompositeAccountStatesLoader: AccountStatesLoader {
     
     func getAccountStates(movieId: Int, accountId: String?) async throws -> MovieAccountStates? {
         if let accountId = accountId,
-           let local = try await localLoader.getAccountStates(movieId: movieId, accountId: accountId) {
+           let local = try await localLoader.getAccountStates(
+               movieId: movieId,
+               accountId: accountId
+           ) {
             Task.detached { [weak self] in
                 guard let self = self else { return }
-                do {
-                    if let remote = try await self.remoteLoader.getAccountStates(
-                        movieId: movieId,
-                        accountId: accountId
-                    ) {
-                        try? await self.localLoader.saveAccountStates(
-                            remote,
-                            accountId: accountId
-                        )
-                    }
-                } catch {
-                    print("Background update failed: \(error)")
-                }
+                _ = try? await self.remoteLoader.getAccountStates(
+                    movieId: movieId,
+                    accountId: accountId
+                )
             }
             return local
         }
         
-        guard let remote = try await remoteLoader.getAccountStates(
+        return try await remoteLoader.getAccountStates(
             movieId: movieId,
             accountId: accountId
-        ) else {
-            return nil
-        }
-         
-        if let accountId = accountId {
-            Task.detached { [weak self] in
-                try? await self?.localLoader.saveAccountStates(
-                    remote,
-                    accountId: accountId
-                )
-            }
-        }
-        
-        return remote
+        )
     }
     
     func markAsFavorite(

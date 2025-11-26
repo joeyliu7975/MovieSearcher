@@ -60,8 +60,12 @@ class MovieRepository {
     private let defaultLanguage: String
     
     init(
-        dataLoader: MovieDataLoader = CompositeMovieDataLoader(),
-        accountStatesLoader: AccountStatesLoader = CompositeAccountStatesLoader(),
+        dataLoader: MovieDataLoader = CachingMovieDataDecorator(
+            decoratee: CompositeMovieDataLoader()
+        ),
+        accountStatesLoader: AccountStatesLoader = CachingAccountStatesDecorator(
+            decoratee: CompositeAccountStatesLoader()
+        ),
         includeAdult: Bool = false,
         language: String = "en-US"
     ) {

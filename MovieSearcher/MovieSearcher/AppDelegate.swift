@@ -15,8 +15,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ = CoreDataStack.shared
         
         Task {
-            let localDataLoader = LocalMovieDataLoader()
-            try? await localDataLoader.clearExpiredCache()
+            let cacheManager = CacheManager()
+            try? await cacheManager.clearExpiredCache()
         }
         
         return true
