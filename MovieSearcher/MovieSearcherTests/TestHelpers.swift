@@ -11,6 +11,7 @@ import Foundation
 actor AsyncExpectation {
     private var isFulfilled = false
     private var continuation: CheckedContinuation<Void, Error>?
+    private var hasResumed = false
     
     nonisolated func fulfill() {
         Task {
@@ -19,9 +20,12 @@ actor AsyncExpectation {
     }
     
     private func fulfillAsync() {
+        guard !isFulfilled, !hasResumed else { return }
         isFulfilled = true
-        continuation?.resume()
+        hasResumed = true
+        let cont = continuation
         continuation = nil
+        cont?.resume()
     }
     
     func wait(timeout: Duration) async throws {
@@ -34,7 +38,10 @@ actor AsyncExpectation {
             
             Task {
                 try await Task.sleep(for: timeout)
-                if !isFulfilled {
+                // Only resume if not already fulfilled/resumed
+                if !isFulfilled, !hasResumed, let cont = self.continuation {
+                    hasResumed = true
+                    self.continuation = nil
                     continuation.resume(throwing: TimeoutError())
                 }
             }
