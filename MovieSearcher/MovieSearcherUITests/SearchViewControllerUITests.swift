@@ -142,6 +142,15 @@ final class SearchViewControllerUITests: XCTestCase {
         searchBar.tap()
         searchBar.typeText("Movie")
         
+        // Press search button on keyboard to hide it
+        UITestHelpers.tapSearchButton(app)
+        
+        // Wait for keyboard to disappear
+        let keyboard = app.keyboards.element
+        if keyboard.exists {
+            _ = keyboard.waitForNonExistence(timeout: 2.0)
+        }
+        
         let tableView = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
         XCTAssertTrue(tableView.waitForExistence(timeout: 2.0))
         
@@ -150,10 +159,16 @@ final class SearchViewControllerUITests: XCTestCase {
         XCTAssertTrue(firstCell.waitForExistence(timeout: 5.0), "Initial results should load")
         
         // Scroll to bottom to trigger pagination
-        let lastCell = tableView.cells.element(boundBy: tableView.cells.count - 1)
-        if lastCell.exists {
-            lastCell.swipeUp()
-            // Wait a bit for potential pagination
+        // Use tableView.swipeUp() instead of swiping on a specific cell
+        // This is more reliable as it doesn't require the cell to be visible
+        tableView.swipeUp()
+        
+        // Wait a bit for potential pagination
+        sleep(1)
+        
+        // Optionally, scroll again if needed to reach the very bottom
+        if tableView.cells.count > 0 {
+            tableView.swipeUp()
             sleep(1)
         }
     }

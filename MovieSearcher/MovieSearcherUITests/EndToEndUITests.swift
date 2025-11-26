@@ -34,6 +34,15 @@ final class EndToEndUITests: XCTestCase {
         searchBar.tap()
         searchBar.typeText("Batman")
         
+        // Press search button on keyboard
+        UITestHelpers.tapSearchButton(app)
+        
+        // Wait for keyboard to disappear
+        let keyboard = app.keyboards.element
+        if keyboard.exists {
+            _ = keyboard.waitForNonExistence(timeout: 2.0)
+        }
+        
         // Step 3: Wait for search results
         let tableView = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
         let firstCell = tableView.cells.firstMatch
@@ -82,6 +91,15 @@ final class EndToEndUITests: XCTestCase {
         searchBar.tap()
         searchBar.typeText("Movie")
         
+        // Press search button on keyboard
+        UITestHelpers.tapSearchButton(app)
+        
+        // Wait for keyboard to disappear
+        let keyboard = app.keyboards.element
+        if keyboard.exists {
+            _ = keyboard.waitForNonExistence(timeout: 2.0)
+        }
+        
         // Step 2: Wait for initial results
         let tableView = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
         let firstCell = tableView.cells.firstMatch
@@ -90,17 +108,21 @@ final class EndToEndUITests: XCTestCase {
         let initialCellCount = tableView.cells.count
         
         // Step 3: Scroll to bottom to trigger pagination
-        let lastCell = tableView.cells.element(boundBy: tableView.cells.count - 1)
-        if lastCell.exists {
-            lastCell.swipeUp()
-            // Wait for potential pagination
-            sleep(2)
-            
-            // Step 4: Verify more cells might have loaded
-            // Note: In a real scenario with pagination, we would verify cell count increased
-            let tableViewAfterScroll = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
-            XCTAssertTrue(tableViewAfterScroll.exists, "Table view should still exist after scroll")
-        }
+        // Use tableView.swipeUp() instead of swiping on a specific cell
+        // This is more reliable as it doesn't require the cell to be visible
+        tableView.swipeUp()
+        
+        // Wait for potential pagination
+        sleep(2)
+        
+        // Scroll again to ensure we reach the bottom
+        tableView.swipeUp()
+        sleep(1)
+        
+        // Step 4: Verify more cells might have loaded
+        // Note: In a real scenario with pagination, we would verify cell count increased
+        let tableViewAfterScroll = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
+        XCTAssertTrue(tableViewAfterScroll.exists, "Table view should still exist after scroll")
         
         // Step 5: Tap on a result
         let firstCellAfterScroll = tableView.cells.firstMatch
@@ -138,6 +160,15 @@ final class EndToEndUITests: XCTestCase {
         searchBarAfterCancel.tap()
         searchBarAfterCancel.typeText("Movie")
         
+        // Press search button on keyboard
+        UITestHelpers.tapSearchButton(app)
+        
+        // Wait for keyboard to disappear
+        let keyboard = app.keyboards.element
+        if keyboard.exists {
+            _ = keyboard.waitForNonExistence(timeout: 2.0)
+        }
+        
         // Step 5: Verify results appear
         let tableView = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
         let firstCell = tableView.cells.firstMatch
@@ -152,6 +183,15 @@ final class EndToEndUITests: XCTestCase {
         
         searchBar.tap()
         searchBar.typeText("Movie")
+        
+        // Press search button on keyboard
+        UITestHelpers.tapSearchButton(app)
+        
+        // Wait for keyboard to disappear
+        let keyboard = app.keyboards.element
+        if keyboard.exists {
+            _ = keyboard.waitForNonExistence(timeout: 2.0)
+        }
         
         // Step 2: Navigate to first detail
         let tableView = app.tables[AccessibilityIdentifiers.Search.moviesTableView]

@@ -30,6 +30,15 @@ final class NavigationUITests: XCTestCase {
         searchBar.tap()
         searchBar.typeText("Movie")
         
+        // Press search button on keyboard
+        UITestHelpers.tapSearchButton(app)
+        
+        // Wait for keyboard to disappear
+        let keyboard = app.keyboards.element
+        if keyboard.exists {
+            _ = keyboard.waitForNonExistence(timeout: 2.0)
+        }
+        
         // Wait for search results
         let tableView = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
         let firstCell = tableView.cells.firstMatch
@@ -57,6 +66,15 @@ final class NavigationUITests: XCTestCase {
         
         searchBar.tap()
         searchBar.typeText("Movie")
+        
+        // Press search button on keyboard
+        UITestHelpers.tapSearchButton(app)
+        
+        // Wait for keyboard to disappear
+        let keyboard = app.keyboards.element
+        if keyboard.exists {
+            _ = keyboard.waitForNonExistence(timeout: 2.0)
+        }
         
         let tableView = app.tables[AccessibilityIdentifiers.Search.moviesTableView]
         let firstCell = tableView.cells.firstMatch

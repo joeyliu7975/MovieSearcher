@@ -37,6 +37,7 @@ class SearchViewController: UIViewController {
         searchBar.placeholder = "Search movies..."
         searchBar.delegate = self
         searchBar.showsCancelButton = true
+        searchBar.returnKeyType = .search
         searchBar.accessibilityIdentifier = AccessibilityIdentifiers.Search.searchBar
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         return searchBar
