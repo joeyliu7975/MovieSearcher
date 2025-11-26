@@ -71,7 +71,7 @@ class MovieDetailViewController: UIViewController {
     private lazy var loadingIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .large)
         indicator.hidesWhenStopped = true
-        indicator.accessibilityIdentifier = "detailLoadingIndicator"
+        indicator.accessibilityIdentifier = AccessibilityIdentifiers.Detail.loadingIndicator
         indicator.translatesAutoresizingMaskIntoConstraints = false
         return indicator
     }()
@@ -79,7 +79,7 @@ class MovieDetailViewController: UIViewController {
     private lazy var favoriteButton: UIButton = {
         let button = UIButton(type: .custom)
         button.isHidden = true
-        button.accessibilityIdentifier = "favoriteButton"
+        button.accessibilityIdentifier = AccessibilityIdentifiers.Detail.favoriteButton
         button.addTarget(self, action: #selector(favoriteButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
