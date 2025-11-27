@@ -125,125 +125,34 @@ jobs:
           echo "=== Test Results Analysis ==="
           echo ""
           
-          # Use xcresulttool to get summary (simpler approach)
+          # Extract basic test summary from log file
           echo "📊 Test Summary:"
-          xcrun xcresulttool get --format json --path UITestResults.xcresult 2>/dev/null | python3 << 'PYTHON_SCRIPT'
-import json
-import sys
-
-try:
-    data = json.load(sys.stdin)
-    
-    # Find test reference
-    test_ref_id = None
-    for action in data.get('actions', []):
-        test_ref = action.get('actionResult', {}).get('testsRef', {})
-        if test_ref and 'id' in test_ref:
-            test_ref_id = test_ref['id'].get('_value', '')
-            if test_ref_id:
-                break
-    
-    if not test_ref_id:
-        print("⚠️  Could not find test reference")
-        sys.exit(0)
-    
-    print(f"Test Reference ID: {test_ref_id}")
-    print("")
-    
-except Exception as e:
-    print(f"Error reading result file: {e}")
-    sys.exit(0)
-
-PYTHON_SCRIPT
-
-          echo ""
-          echo "=== Extracting Test Details ==="
-          echo ""
-          
-          # Extract detailed test information using xcresulttool export
-          TEST_EXPORT=$(xcrun xcresulttool export --type directory --path UITestResults.xcresult --output-path /tmp/test-export 2>&1 || echo "export_failed")
-          
-          if [ "$TEST_EXPORT" != "export_failed" ] && [ -d "/tmp/test-export" ]; then
-            echo "✅ Successfully exported test details"
+          if [ -f "test-output.log" ]; then
+            echo ""
+            echo "=== Test Execution Summary from Log ==="
+            PASSED_COUNT=$(grep -c "Test case.*passed" test-output.log 2>/dev/null || echo "0")
+            FAILED_COUNT=$(grep -c "Test case.*failed" test-output.log 2>/dev/null || echo "0")
+            TOTAL_COUNT=$((PASSED_COUNT + FAILED_COUNT))
+            
+            echo "✅ Passed Tests: $PASSED_COUNT"
+            echo "❌ Failed Tests: $FAILED_COUNT"
+            echo "📊 Total: $TOTAL_COUNT tests"
+            echo ""
+            
+            if [ "$FAILED_COUNT" -gt 0 ]; then
+              echo "=== Failed Test Cases ==="
+              grep "Test case.*failed" test-output.log | sed 's/.*Test case //' | sed 's/ failed.*//' | head -20
+              echo ""
+            fi
+            
+            if [ "$PASSED_COUNT" -gt 0 ]; then
+              echo "=== Passed Test Cases (first 10) ==="
+              grep "Test case.*passed" test-output.log | sed 's/.*Test case //' | sed 's/ passed.*//' | head -10
+              echo ""
+            fi
+          else
+            echo "⚠️  Test output log not found"
           fi
-          
-          # Try to get readable summary from xcresulttool
-          echo "=== Test Execution Summary ==="
-          xcrun xcresulttool get --format json --path UITestResults.xcresult 2>/dev/null | python3 << 'PYTHON_SCRIPT'
-import json
-import sys
-
-def extract_test_results(obj, path="", failed_tests=[], passed_tests=[]):
-    """Recursively extract test results from the JSON structure"""
-    if isinstance(obj, dict):
-        # Check if this is a test summary
-        test_name_obj = obj.get('testName', {})
-        test_status_obj = obj.get('testStatus', {})
-        
-        if test_name_obj and test_status_obj:
-            test_name = test_name_obj.get('_value', '')
-            test_status = test_status_obj.get('_value', '')
-            duration = obj.get('duration', {}).get('_value', 0)
-            
-            full_name = f"{path}.{test_name}" if path else test_name
-            
-            if test_status == 'Success':
-                passed_tests.append((full_name, duration))
-            elif test_status == 'Failure':
-                # Get failure message
-                failure_msgs = []
-                failures = obj.get('failureSummaries', {})
-                if isinstance(failures, dict) and '_values' in failures:
-                    for failure in failures['_values']:
-                        msg = failure.get('message', {}).get('_value', '')
-                        if msg:
-                            failure_msgs.append(msg)
-                
-                failed_tests.append((full_name, duration, failure_msgs))
-        
-        # Recursively search in all values
-        for key, value in obj.items():
-            new_path = f"{path}.{key}" if path and key.startswith('_') is False else path
-            extract_test_results(value, new_path, failed_tests, passed_tests)
-    
-    elif isinstance(obj, list):
-        for item in obj:
-            extract_test_results(item, path, failed_tests, passed_tests)
-
-try:
-    data = json.load(sys.stdin)
-    
-    failed_tests = []
-    passed_tests = []
-    
-    extract_test_results(data, failed_tests=failed_tests, passed_tests=passed_tests)
-    
-    print(f"✅ Passed Tests: {len(passed_tests)}")
-    for test_name, duration in passed_tests[:10]:  # Show first 10
-        print(f"   ✓ {test_name} ({duration:.2f}s)")
-    if len(passed_tests) > 10:
-        print(f"   ... and {len(passed_tests) - 10} more")
-    
-    print("")
-    print(f"❌ Failed Tests: {len(failed_tests)}")
-    for test_name, duration, messages in failed_tests:
-        print(f"   ✗ {test_name} ({duration:.2f}s)")
-        for msg in messages[:2]:  # Show first 2 error messages
-            # Truncate long messages
-            short_msg = msg[:200] + "..." if len(msg) > 200 else msg
-            print(f"      {short_msg}")
-    
-    print("")
-    print(f"📊 Total: {len(passed_tests) + len(failed_tests)} tests")
-    
-except Exception as e:
-    print(f"⚠️  Could not parse detailed results: {e}")
-    print("")
-    print("Raw test output summary:")
-    # Fallback: try to extract from test output log
-    pass
-
-PYTHON_SCRIPT
 
           echo ""
           echo "=== Searching for Error Patterns in Log ==="
@@ -251,15 +160,6 @@ PYTHON_SCRIPT
             echo ""
             echo "Key error patterns found:"
             grep -i -E "(error|fail|timeout|assert|exception)" test-output.log | head -20 || echo "No obvious error patterns found"
-            
-            echo ""
-            echo "=== Test Execution Summary from Log ==="
-            echo "Failed tests:"
-            grep -E "Test case.*failed" test-output.log | sed 's/.*Test case //' | sed 's/ failed.*//' || echo "Could not extract failed test names"
-            
-            echo ""
-            echo "Passed tests:"
-            grep -E "Test case.*passed" test-output.log | sed 's/.*Test case //' | sed 's/ passed.*//' | head -10 || echo "Could not extract passed test names"
           fi
           
           echo ""
