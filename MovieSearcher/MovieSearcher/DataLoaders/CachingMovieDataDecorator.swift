@@ -32,7 +32,6 @@ class CachingMovieDataDecorator<T: MovieDataLoader>: MovieDataLoader {
             page: page
         )
         
-        // 自動保存（保存操作是冪等的，所以即使本地已有資料也可以保存）
         if let result = result {
             Task.detached { [weak self] in
                 try? await self?.store.saveSearchResult(
