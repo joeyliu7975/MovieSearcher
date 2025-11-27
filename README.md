@@ -72,6 +72,26 @@ This app uses [The Movie Database (TMDB) API](https://developers.themoviedb.org/
 
 **Rate Limits:** 40 requests per 10 seconds per API key
 
+## CI/CD
+
+This project uses **GitHub Actions** for continuous integration and deployment. Every push to the `main` branch and all pull requests automatically trigger the CI pipeline.
+
+### Automated Workflow
+
+The CI pipeline automatically:
+- ✅ Builds the project on macOS with the latest Xcode
+- ✅ Runs all unit tests (`MovieSearcherTests`)
+- ✅ Runs all UI tests (`MovieSearcherUITests`)
+- ✅ Uploads test results as artifacts
+
+### Workflow Status
+
+You can view the CI/CD status in the [Actions](https://github.com/joeyliu7975/MovieSearcher/actions) tab of this repository.
+
+### Local Testing
+
+For local development, you can run the same tests using Xcode or command line (see [Testing](#testing) section below).
+
 ## Testing
 
 This project includes comprehensive **Unit Tests** and **UI Tests** to ensure code quality and reliability.
@@ -99,7 +119,7 @@ Unit tests cover the core business logic and data layer components:
 ```bash
 # In Xcode: Cmd + U
 # Or via command line:
-xcodebuild test -scheme MovieSearcher -destination 'platform=iOS Simulator,name=iPhone 15'
+xcodebuild test -scheme MovieSearcher -destination 'platform=iOS Simulator,name=iPhone 16'
 ```
 
 ### UI Tests
@@ -143,5 +163,5 @@ UI tests verify the complete user experience and interactions:
 ```bash
 # In Xcode: Select MovieSearcherUITests scheme and Cmd + U
 # Or via command line:
-xcodebuild test -scheme MovieSearcher -destination 'platform=iOS Simulator,name=iPhone 15' -only-testing:MovieSearcherUITests
+xcodebuild test -scheme MovieSearcher -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:MovieSearcherUITests
 ```
