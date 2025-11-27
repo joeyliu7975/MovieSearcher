@@ -26,7 +26,7 @@ jobs:
         run: xcodebuild -version
       
       - name: Show available simulators
-        run: xcrun simctl list devices available | grep -i "iphone 15" || true
+        run: xcrun simctl list devices available | grep -i "iphone 16" || true
       
       - name: Cache DerivedData
         uses: actions/cache@v4
@@ -59,7 +59,7 @@ jobs:
         run: |
           xcodebuild clean build \
             -scheme MovieSearcher \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
             -sdk iphonesimulator \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
@@ -70,7 +70,7 @@ jobs:
         run: |
           xcodebuild test \
             -scheme MovieSearcher \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
             -only-testing:MovieSearcherTests \
             -sdk iphonesimulator \
             CODE_SIGN_IDENTITY="" \
@@ -85,7 +85,7 @@ jobs:
         run: |
           xcodebuild test \
             -scheme MovieSearcher \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
             -only-testing:MovieSearcherUITests \
             -sdk iphonesimulator \
             CODE_SIGN_IDENTITY="" \
