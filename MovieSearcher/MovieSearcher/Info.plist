@@ -6,6 +6,8 @@
 	<string>YOUR_API_KEY_HERE</string>
 	<key>TMDB_READ_ACCESS_TOKEN</key>
 	<string>YOUR_READ_ACCESS_TOKEN_HERE</string>
+	<key>TMDB_ACCOUNT_ID</key>
+	<string>YOUR_ACCOUNT_ID_HERE</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
