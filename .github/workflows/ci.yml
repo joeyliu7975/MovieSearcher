@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: macos-14
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      
+      - name: Show Xcode version
+        run: xcodebuild -version
+      
+      - name: Show available simulators
+        run: xcrun simctl list devices available | grep -i "iphone 15" || true
+      
+      - name: Cache DerivedData
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: ${{ runner.os }}-deriveddata-${{ hashFiles('MovieSearcher/**/*.pbxproj') }}
+          restore-keys: |
+            ${{ runner.os }}-deriveddata-
+      
+      - name: Create Info.plist for CI
+        working-directory: MovieSearcher/MovieSearcher
+        run: |
+          cat > Info.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>TMDB_API_KEY</key>
+              <string>${{ secrets.TMDB_API_KEY }}</string>
+              <key>TMDB_READ_ACCESS_TOKEN</key>
+              <string>${{ secrets.TMDB_READ_ACCESS_TOKEN }}</string>
+              <key>TMDB_ACCOUNT_ID</key>
+              <string>${{ secrets.TMDB_ACCOUNT_ID }}</string>
+          </dict>
+          </plist>
+          EOF
+      
+      - name: Build project
+        working-directory: MovieSearcher
+        run: |
+          xcodebuild clean build \
+            -scheme MovieSearcher \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+            -sdk iphonesimulator \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+      
+      - name: Run Unit Tests
+        working-directory: MovieSearcher
+        run: |
+          xcodebuild test \
+            -scheme MovieSearcher \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+            -only-testing:MovieSearcherTests \
+            -sdk iphonesimulator \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            -enableCodeCoverage YES \
+            -resultBundlePath TestResults.xcresult
+      
+      - name: Run UI Tests
+        working-directory: MovieSearcher
+        timeout-minutes: 30
+        run: |
+          xcodebuild test \
+            -scheme MovieSearcher \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+            -only-testing:MovieSearcherUITests \
+            -sdk iphonesimulator \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            -enableCodeCoverage YES \
+            -resultBundlePath UITestResults.xcresult
+      
+      - name: Upload Unit Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results
+          path: MovieSearcher/TestResults.xcresult
+          retention-days: 30
+          if-no-files-found: ignore
+      
+      - name: Upload UI Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-test-results
+          path: MovieSearcher/UITestResults.xcresult
+          retention-days: 30
+          if-no-files-found: ignore
+
